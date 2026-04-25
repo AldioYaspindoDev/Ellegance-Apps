@@ -34,7 +34,7 @@ export default function Featured2() {
               whileHover={{ y: -10 }}
               className="group cursor-pointer"
             >
-              <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100 mb-8">
+              <div className="relative aspect-3/4 overflow-hidden bg-neutral-100 mb-8">
                 <Image
                   src={product.image}
                   alt={product.name}
@@ -57,4 +57,4 @@ export default function Featured2() {
       </div>
     </section>
   );
-}
+}

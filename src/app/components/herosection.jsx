@@ -14,8 +14,10 @@ export default function HeroSection() {
         <Image
           src="/images/HeroSection.png"
           alt="Hero Background"
-          fill
-          className="object-cover"
+          width={300}
+          height={300}
+          // fill
+          className="object-cover w-full"
           priority
         />
       </motion.div>
@@ -28,8 +30,8 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="flex flex-col gap-2"
           >
-            <span className="text-2xl md:text-3xl font-light text-neutral-800 tracking-wide">Elegance in</span>
-            <h1 className="title-xl text-neutral-900 mb-6">Every Step.</h1>
+            <h2 className="text-2xl md:text-5xl font-semibold text-neutral-800 tracking-wide">Elegance in</h2>
+            <h1 className="text-8xl font-bold text-neutral-900 mb-6">Every Step.</h1>
           </motion.div>
 
           <motion.p
@@ -38,7 +40,11 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-body max-w-xl mb-12"
           >
-            Premium leather formal shoes designed for comfort, confidence, and everyday office wear.
+            <span
+              className="text-gray-800"
+            >
+               Premium leather formal shoes designed for comfort, confidence, and everyday office wear.
+            </span>
           </motion.p>
 
           <motion.div
@@ -47,7 +53,7 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="flex flex-wrap gap-6"
           >
-            <button className="btn-primary flex items-center gap-4 group">
+            <button className="btn-primary mt-20 flex items-center gap-4 group">
               Explore Collection
               <motion.span
                 animate={{ x: [0, 5, 0] }}

@@ -1,8 +1,15 @@
 "use client";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 
 export default function Navbar() {
+  const navItems = [
+    { name: "Home", href: "/" },
+    { name: "Collections", href: "/collection" },
+    { name: "About", href: "/about" },
+  ];
+
   return (
     <nav className="w-full h-24 fixed top-0 left-0 bg-white/80 backdrop-blur-md z-50 border-b border-neutral-100 px-8 md:px-24 flex items-center justify-between">
       <motion.div 
@@ -10,23 +17,25 @@ export default function Navbar() {
         animate={{ opacity: 1, x: 0 }}
         className="text-3xl md:text-4xl font-bold tracking-tight text-neutral-900 font-['Segoe_UI']"
       >
-        Ellegance
+        <Link href="/">Ellegance</Link>
       </motion.div>
 
       <div className="flex items-center gap-12">
         <div className="hidden md:flex items-center gap-10">
-          {["Home", "Collections", "About"].map((item, i) => (
-            <motion.a
-              key={item}
-              href="#"
+          {navItems.map((item, i) => (
+            <motion.div
+              key={item.name}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              whileHover={{ scale: 1.05, color: "#000" }}
-              className="text-lg font-medium text-neutral-600 hover:text-neutral-950 transition-colors"
             >
-              {item}
-            </motion.a>
+              <Link
+                href={item.href}
+                className="text-lg font-medium text-neutral-600 hover:text-neutral-950 transition-colors"
+              >
+                {item.name}
+              </Link>
+            </motion.div>
           ))}
         </div>
         
@@ -41,4 +50,4 @@ export default function Navbar() {
       </div>
     </nav>
   );
-}
+}
