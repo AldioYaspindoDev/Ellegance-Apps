@@ -1,15 +1,19 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #171717;
+  --color-secondary: #4a4a4a;
+  --color-accent: #8a8a8a;
+  
+  --font-heading: 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  
+  --spacing-section: 120px;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +26,38 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+.section-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.title-xl {
+  @apply text-6xl md:text-8xl font-bold tracking-tight leading-tight;
+}
+
+.title-lg {
+  @apply text-4xl md:text-6xl font-semibold tracking-tight;
+}
+
+.title-md {
+  @apply text-2xl md:text-3xl font-semibold tracking-wide uppercase;
+}
+
+.text-body {
+  @apply text-lg md:text-xl text-neutral-600 leading-relaxed;
+}
+
+.btn-primary {
+  @apply px-12 py-4 bg-neutral-900 text-white text-xl font-medium transition-all hover:bg-neutral-800 active:scale-95;
+}
+
