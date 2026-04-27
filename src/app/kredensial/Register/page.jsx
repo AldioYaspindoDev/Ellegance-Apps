@@ -31,7 +31,7 @@ export default function Register() {
             if(!response.ok) throw new Error(data.message);
 
             alert("Pendaftaran berhasil")
-            router.push("/")
+            router.push("/Login")
         } catch (error) {
             console.error(error);
         } finally {
