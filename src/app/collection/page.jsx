@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 
@@ -100,33 +101,35 @@ export default function Collection() {
                     key={item.id}
                     className="group cursor-pointer"
                   >
-                    <div className="relative aspect-4/5 overflow-hidden bg-neutral-50 mb-6">
-                      <img
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                        src={`http://localhost:5000/${item.productImages}`}
-                        alt={item.productName}
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300"></div>
-                      <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-white/80 backdrop-blur-md">
-                        <button className="w-full py-3 bg-neutral-900 text-white text-sm font-medium tracking-widest hover:bg-neutral-800 transition-colors">
-                          QUICK VIEW
-                        </button>
+                    <Link href={`/collection/${item.id}`} className="block w-full h-full">
+                      <div className="relative aspect-4/5 overflow-hidden bg-neutral-50 mb-6">
+                        <img
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                          src={`http://localhost:5000/${item.productImages}`}
+                          alt={item.productName}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300"></div>
+                        <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-white/80 backdrop-blur-md">
+                          <button className="w-full py-3 bg-neutral-900 text-white text-sm font-medium tracking-widest hover:bg-neutral-800 transition-colors">
+                            QUICK VIEW
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-start">
-                        <h3 className="text-xl font-light text-neutral-900 tracking-tight">
-                          {item.productName}
-                        </h3>
-                        <span className="text-xs font-bold tracking-tighter text-neutral-400 uppercase">
-                          {item.category}
-                        </span>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-start">
+                          <h3 className="text-xl font-light text-neutral-900 tracking-tight">
+                            {item.productName}
+                          </h3>
+                          <span className="text-xs font-bold tracking-tighter text-neutral-400 uppercase">
+                            {item.category}
+                          </span>
+                        </div>
+                        <p className="text-lg font-medium text-neutral-900">
+                          Rp {parseInt(item.price).toLocaleString()}
+                        </p>
                       </div>
-                      <p className="text-lg font-medium text-neutral-900">
-                        Rp {parseInt(item.price).toLocaleString()}
-                      </p>
-                    </div>
+                    </Link>
                   </motion.div>
                 ))
               ) : (

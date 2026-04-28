@@ -34,4 +34,4 @@ export default function CallToAction() {
       </motion.div>
     </div>
   );
-}
+}
