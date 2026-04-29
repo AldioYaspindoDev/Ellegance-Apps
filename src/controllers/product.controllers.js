@@ -39,6 +39,25 @@ export const getProductById = async (req, res) => {
     }
 }
 
+export const getProductByCategory = async (req, res) => {
+    try {
+        const { category } = req.params;
+        const product = await Product.findAll({ where: { category } });
+        res.status(200).json({
+            "success": true,
+            "message": "berhasil mendapatkan data",
+            "data": product
+        })
+    } catch (error) {
+        console.error(error.message)        
+        res.status(400).json({
+            "success": false,
+            "message": "gagal mendapatkan data",
+            "error": error.message
+        });
+    }
+}
+
 export const createProduct = async (req, res) => {
     try {
         const { 

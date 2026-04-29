@@ -180,3 +180,30 @@ export const DeleteUser = async(req, res) => {
         });
     }
 }
+
+export const GetMe = async (req, res) => {
+    try {
+        // req.user didapat dari middleware verifyToken
+        const user = await User.findByPk(req.user.id, {
+            attributes: ['id', 'username', 'email', 'role'] // Kita tidak mengirim password
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User tidak ditemukan"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Data user berhasil diambil",
+            data: user
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
