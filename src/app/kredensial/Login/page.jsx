@@ -31,8 +31,14 @@ export default function Login() {
             
             if(!response.ok) throw new Error(data.message);
 
+            // Simpan token ke localStorage untuk profesionalisme
+            if (data.token) {
+                localStorage.setItem("token", data.token);
+            }
+
             alert("Selamat anda Berhasil Login");
             router.push("/")
+
         } catch (error) {
             console.error(error.message);
             alert(error.message || "Login failed. Please check your credentials.");

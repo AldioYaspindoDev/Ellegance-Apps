@@ -10,17 +10,24 @@ export default function Collection() {
   const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState("ALL");
 
-  const categories = ["ALL", "BEST SELLER", "LIMITED EDITION", "MAN", "WOMAN"];
+  const categories = ["ALL", "MAN", "WOMAN"];
 
   useEffect(() => {
     setLoading(true);
-    fetch("http://localhost:5000/product")
+
+    // Tentukan URL berdasarkan kategori yang aktif
+    const url = activeCategory === "ALL" 
+      ? "http://localhost:5000/product" 
+      : `http://localhost:5000/product/category/${activeCategory}`;
+
+    fetch(url)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && Array.isArray(data.data)) {
           setProduct(data.data);
         } else {
-          console.error("Format data tidak sesuai:", data);
+          // Jika tidak ada data atau gagal, set product menjadi array kosong
+          setProduct([]);
         }
         setLoading(false);
       })
@@ -28,7 +35,8 @@ export default function Collection() {
         console.error("gagal mengambil data product : ", err);
         setLoading(false);
       });
-  }, []);
+  }, [activeCategory]);
+
 
   return (
     <>

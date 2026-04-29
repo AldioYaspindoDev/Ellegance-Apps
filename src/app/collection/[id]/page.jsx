@@ -1,21 +1,30 @@
 "use client";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../../components/navbar";
 import Footer from "../../components/footer";
 import Link from "next/link";
+import useBucket from "../../context/bucketContext";
+import { Check, ShoppingCart, AlertCircle } from "lucide-react";
 
 export default function DetailCollection() {
   const [collection, setCollection] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+  
   const params = useParams();
+  const { addToBucket } = useBucket();
+
+  const sizes = ['S', 'M', 'L', 'XL', '2XL'];
 
   useEffect(() => {
     const fetchCollection = async () => {
       try {
-        // Fix API endpoint and method (usually GET for retrieving single item)
         const response = await fetch(`http://localhost:5000/product/${params.id}`);
         
         if (!response.ok) {
@@ -24,11 +33,9 @@ export default function DetailCollection() {
 
         const data = await response.json();
         
-        // Handle response format assuming success boolean and data object
         if (data.success && data.data) {
           setCollection(data.data);
         } else if (data && !data.success) {
-           // fallback if backend returns the object directly
            setCollection(data);
         }
       } catch (err) {
@@ -43,6 +50,23 @@ export default function DetailCollection() {
       fetchCollection();
     }
   }, [params.id]);
+
+  const handleAddToCart = async () => {
+    if (!selectedSize) {
+      setToastMsg("Please select a size first");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+      return;
+    }
+
+    setAddingToCart(true);
+    const result = await addToBucket(collection.id, selectedSize, 1);
+    
+    setAddingToCart(false);
+    setToastMsg(result.message);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
 
   if (loading) {
     return (
@@ -79,6 +103,22 @@ export default function DetailCollection() {
   return (
     <>
       <Navbar />
+      
+      {/* Simple Toast Notification */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-neutral-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 min-w-[300px] justify-center"
+          >
+            {toastMsg.includes("select") ? <AlertCircle className="w-4 h-4 text-amber-400" /> : <Check className="w-4 h-4 text-emerald-400" />}
+            <span className="text-sm font-medium">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="min-h-screen bg-white pt-32 pb-20">
         <div className="section-container">
           
@@ -120,6 +160,30 @@ export default function DetailCollection() {
                 <p className="text-2xl font-medium text-neutral-900 mb-8">
                   Rp {collection.price ? parseInt(collection.price).toLocaleString() : "0"}
                 </p>
+                
+                {/* Size Selection */}
+                <div className="mb-10">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-sm font-bold tracking-widest text-neutral-900 uppercase">Select Size</span>
+                    <button className="text-xs text-neutral-400 hover:text-neutral-900 underline transition-colors">Size Guide</button>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {sizes.map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`w-14 h-14 flex items-center justify-center text-sm font-medium transition-all border ${
+                          selectedSize === size 
+                            ? "border-neutral-900 bg-neutral-900 text-white" 
+                            : "border-neutral-200 text-neutral-500 hover:border-neutral-900 hover:text-neutral-900"
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="w-full h-px bg-neutral-200 mb-8"></div>
                 <p className="text-body text-neutral-500 mb-10 leading-relaxed">
                   {collection.description || "Experience unparalleled comfort and style with our premium leather footwear. Each piece is meticulously crafted to elevate your daily ensemble, combining traditional artisanship with modern design sensibilities."}
@@ -128,8 +192,19 @@ export default function DetailCollection() {
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-4">
-                <button className="w-full py-4 bg-neutral-900 text-white text-sm font-bold tracking-widest hover:bg-neutral-800 transition-all active:scale-[0.98]">
-                  ADD TO CART
+                <button 
+                  onClick={handleAddToCart}
+                  disabled={addingToCart}
+                  className="w-full py-4 bg-neutral-900 text-white text-sm font-bold tracking-widest hover:bg-neutral-800 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70"
+                >
+                  {addingToCart ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-4 h-4" />
+                      ADD TO CART
+                    </>
+                  )}
                 </button>
                 <button className="w-full py-4 bg-white border border-neutral-900 text-neutral-900 text-sm font-bold tracking-widest hover:bg-neutral-50 transition-all active:scale-[0.98]">
                   BUY IT NOW

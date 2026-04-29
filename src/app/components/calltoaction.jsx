@@ -10,7 +10,7 @@ export default function CallToAction() {
         whileInView={{ opacity: 1, x: 0 }}
         className="max-w-md"
       >
-        <h2 className="title-md text-neutral-900 mb-4">Newsletter</h2>
+        <h2 className="title-md text-gray-900 mb-4">Newsletter</h2>
         <p className="text-xl text-neutral-600">
           Join our list for exclusive releases and updates.
         </p>
@@ -25,7 +25,7 @@ export default function CallToAction() {
           <input 
             type="email" 
             placeholder="Email Address" 
-            className="w-full bg-transparent border-b-2 border-neutral-200 py-6 text-2xl font-light focus:outline-none focus:border-neutral-900 transition-colors"
+            className="w-full bg-transparent border-b-2 border-neutral-200 py-6 text-2xl font-light text-gray-900 focus:outline-none focus:border-neutral-900 transition-colors placeholder-gray-500"
           />
           <button className="absolute right-0 top-1/2 -translate-y-1/2 p-4 text-neutral-400 group-focus-within:text-neutral-900 transition-colors">
             <ArrowRight className="w-8 h-8" />
