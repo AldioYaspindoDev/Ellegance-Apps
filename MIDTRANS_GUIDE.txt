@@ -1,0 +1,76 @@
+==========================================================
+   BLUEPRINT INTEGRASI MIDTRANS SNAP (CHEATSHEET)
+==========================================================
+
+TAHAP 1: PERSIAPAN (DASHBOARD & ENV)
+------------------------------------
+1. Login ke Dashboard Midtrans (Sandbox/Production).
+2. Ambil Server Key & Client Key.
+3. Simpan di .env:
+   MIDTRANS_SERVER_KEY=xxx
+   MIDTRANS_CLIENT_KEY=xxx
+   MIDTRANS_IS_PRODUCTION=false
+
+
+TAHAP 2: BACKEND (MEMINTA TOKEN)
+--------------------------------
+Tugas: Menerima request dari frontend, lalu minta token ke Midtrans.
+
+Langkah:
+1. Install library: npm install midtrans-client
+2. Buat instance Snap:
+   const snap = new midtransClient.Snap({
+     isProduction: false,
+     serverKey: 'YOUR_SERVER_KEY'
+   });
+3. Buat Parameter Transaksi:
+   const parameter = {
+     transaction_details: {
+       order_id: "ID_UNIK_ORDER",
+       gross_amount: 10000 // Total harga
+     },
+     customer_details: {
+       first_name: "Nama",
+       email: "email@user.com"
+     }
+   };
+4. Panggil Snap:
+   const transaction = await snap.createTransaction(parameter);
+   // Ambil transaction.token
+
+
+TAHAP 3: FRONTEND (MENAMPILKAN POPUP)
+-------------------------------------
+Tugas: Memanggil API Backend dan memicu popup Snap.
+
+Langkah:
+1. Pasang script Midtrans di HTML (Head):
+   <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="YOUR_CLIENT_KEY"></script>
+2. Pemicu (Klik Tombol Bayar):
+   const res = await fetch('/api/order'); // API Backend Step 2
+   const { token } = await res.json();
+   
+   window.snap.pay(token, {
+     onSuccess: (result) => { alert('Bayar Berhasil!'); },
+     onPending: (result) => { alert('Menunggu Pembayaran...'); },
+     onError: (result) => { alert('Pembayaran Gagal!'); }
+   });
+
+
+TAHAP 4: WEBHOOK / NOTIFICATION (UPDATE STATUS DB)
+--------------------------------------------------
+Tugas: Backend menerima info otomatis dari Midtrans saat status berubah (misal: user selesai bayar di ATM).
+
+Langkah:
+1. Buat Endpoint POST (misal: /api/payment/notification).
+2. Setting URL ini di Dashboard Midtrans (Settings > Notification).
+3. Verifikasi signature dan update database status order (Pending -> Settlement).
+
+TIPS PENTING:
+- Jangan pernah update status "Sudah Bayar" hanya dari callback Frontend (onSuccess).
+- Selalu andalkan Webhook (Step 4) untuk keamanan database.
+- ID Order harus selalu unik setiap kali request transaksi baru.
+
+==========================================================
+Dibuat untuk: Ellegance Apps Project
+==========================================================
