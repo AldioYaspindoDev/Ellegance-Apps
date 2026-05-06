@@ -1,12 +1,12 @@
 "use client";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../../components/navbar";
 import Footer from "../../components/footer";
 import Link from "next/link";
 import useBucket from "../../context/bucketContext";
-import { Check, ShoppingCart, AlertCircle } from "lucide-react";
+import { Check, ShoppingCart, AlertCircle, Minus, Plus } from "lucide-react";
 
 export default function DetailCollection() {
   const [collection, setCollection] = useState(null);
@@ -16,9 +16,11 @@ export default function DetailCollection() {
   const [addingToCart, setAddingToCart] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
+  const [quantity, setQuantity] = useState(1);
   
   const params = useParams();
-  const { addToBucket } = useBucket();
+  const router = useRouter();
+  const { addToBucket, clearUserBucket, user } = useBucket();
 
   const sizes = ['S', 'M', 'L', 'XL', '2XL'];
 
@@ -60,12 +62,84 @@ export default function DetailCollection() {
     }
 
     setAddingToCart(true);
-    const result = await addToBucket(collection.id, selectedSize, 1);
+    const result = await addToBucket(collection.id, selectedSize, quantity);
     
     setAddingToCart(false);
+    if (result.success) setQuantity(1);
     setToastMsg(result.message);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const handleBuyNow = async () => {
+    if (!user) {
+      router.push("/kredensial/Login");
+      return;
+    }
+
+    if (!selectedSize) {
+      setToastMsg("Please select a size first");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+      return;
+    }
+
+    setAddingToCart(true); // Reuse loading state for simplicity or add a new one
+
+    try {
+      const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      const response = await fetch("http://localhost:5000/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: orderId,
+          email: user.email,
+          username: user.username,
+          item_details: [
+            {
+              id: collection.id,
+              quantity: quantity
+            }
+          ]
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.token) {
+        window.snap.pay(data.token, {
+          onSuccess: async function(result) {
+            console.log('success', result);
+            // Kita tidak menghapus produk dari database lagi, 
+            // tapi kita kosongkan bucket jika user menginginkannya.
+            // Namun untuk Direct Checkout, biasanya bucket tidak ikut terhapus
+            // kecuali barang yang dibeli ada di bucket.
+            // Untuk memastikan bucket bersih setelah checkout (sesuai komplain user), 
+            // kita panggil clearUserBucket.
+            await clearUserBucket();
+            
+            alert("Payment Success! Your order is being processed.");
+            window.location.href = "/";
+          },
+          onPending: function(result) {
+            alert("Waiting for your payment!");
+          },
+          onError: function(result) {
+            alert("Payment failed!");
+          },
+          onClose: function() {
+            console.log('Customer closed the popup');
+          }
+        });
+      } else {
+        alert(data.message || "Failed to create transaction");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      alert("Something went wrong during checkout");
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
   if (loading) {
@@ -184,6 +258,28 @@ export default function DetailCollection() {
                   </div>
                 </div>
 
+                {/* Quantity Selector */}
+                <div className="mb-10">
+                  <span className="text-sm font-bold tracking-widest text-neutral-900 uppercase block mb-4">Quantity</span>
+                  <div className="flex items-center border border-neutral-200 w-fit">
+                    <button 
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="w-12 h-12 flex items-center justify-center hover:bg-neutral-50 transition-colors"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <div className="w-12 h-12 flex items-center justify-center border-x border-neutral-200">
+                      <span className="font-medium text-sm">{quantity}</span>
+                    </div>
+                    <button 
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="w-12 h-12 flex items-center justify-center hover:bg-neutral-50 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
                 <div className="w-full h-px bg-neutral-200 mb-8"></div>
                 <p className="text-body text-neutral-500 mb-10 leading-relaxed">
                   {collection.description || "Experience unparalleled comfort and style with our premium leather footwear. Each piece is meticulously crafted to elevate your daily ensemble, combining traditional artisanship with modern design sensibilities."}
@@ -206,7 +302,10 @@ export default function DetailCollection() {
                     </>
                   )}
                 </button>
-                <button className="w-full py-4 bg-white border border-neutral-900 text-neutral-900 text-sm font-bold tracking-widest hover:bg-neutral-50 transition-all active:scale-[0.98]">
+                <button 
+                  onClick={handleBuyNow}
+                  className="w-full py-4 bg-white border border-neutral-900 text-neutral-900 text-sm font-bold tracking-widest hover:bg-neutral-50 transition-all active:scale-[0.98]"
+                >
                   BUY IT NOW
                 </button>
               </div>

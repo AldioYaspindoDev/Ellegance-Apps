@@ -63,7 +63,9 @@ export default function Navbar() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 group cursor-pointer">
                 <div className="w-8 h-8 bg-neutral-900 rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4 text-white" />
+                  <Link href={user.role === 'customer' ? "/profile" : "/"}>
+                    <User className="w-4 h-4 text-white" />
+                  </Link>
                 </div>
                 <span className="text-sm font-bold text-neutral-900 uppercase tracking-tight hidden lg:block">{user.name || user.username}</span>
               </div>

@@ -121,6 +121,44 @@ export function BucketProvider({ children }) {
         }
     };
 
+    const updateQuantity = async (itemId, quantity) => {
+        if (quantity < 1) return { success: false, message: "Quantity minimal 1" };
+        
+        try {
+            const res = await fetch(`http://localhost:5000/bucket/${itemId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ quantity })
+            });
+            const data = await res.json();
+            if (data.success) {
+                if (user) await fetchBucket(user.id);
+                return { success: true, message: data.message };
+            }
+            return { success: false, message: data.message };
+        } catch (error) {
+            return { success: false, message: "Gagal update quantity" };
+        }
+    };
+
+    const clearUserBucket = async () => {
+        if (!user) return;
+        try {
+            const res = await fetch(`http://localhost:5000/bucket/clear/${user.id}`, {
+                method: "DELETE"
+            });
+            const data = await res.json();
+            if (data.success) {
+                setBucketItems([]);
+                return { success: true };
+            }
+            return { success: false };
+        } catch (error) {
+            console.error("Error clearing bucket:", error);
+            return { success: false };
+        }
+    };
+
     return (
         <BucketContext.Provider value={{ 
             bucketItems, 
@@ -128,6 +166,8 @@ export function BucketProvider({ children }) {
             user, 
             addToBucket, 
             removeFromBucket,
+            updateQuantity,
+            clearUserBucket,
             logout,
             loading 
         }}>

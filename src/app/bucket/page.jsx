@@ -5,11 +5,11 @@ import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import useBucket from "../context/bucketContext";
 import Link from "next/link";
-import { Trash2, ShoppingBag, ArrowRight, Check } from "lucide-react";
+import { Trash2, ShoppingBag, ArrowRight, Check, Minus, Plus } from "lucide-react";
 import { useState } from "react";
 
 export default function BucketPage() {
-    const { bucketItems, loading, removeFromBucket, user } = useBucket();
+    const { bucketItems, loading, removeFromBucket, updateQuantity, clearUserBucket, user } = useBucket();
     const [showToast, setShowToast] = useState(false);
     const [toastMsg, setToastMsg] = useState("");
     const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -56,10 +56,11 @@ export default function BucketPage() {
             if (data.success && data.token) {
                 // Trigger Midtrans Snap
                 window.snap.pay(data.token, {
-                    onSuccess: function(result) {
+                    onSuccess: async function(result) {
                         console.log('success', result);
-                        alert("Payment Success!");
-                        // Clear cart or redirect
+                        // Mengosongkan keranjang setelah pembelian berhasil
+                        await clearUserBucket();
+                        alert("Payment Success! Your order is being processed.");
                         window.location.href = "/";
                     },
                     onPending: function(result) {
@@ -181,7 +182,22 @@ export default function BucketPage() {
                                                         Size: <span className="font-bold text-neutral-900">{item.selectedSize}</span>
                                                     </p>
                                                     <div className="flex items-center gap-4">
-                                                        <span className="text-sm text-neutral-400">Quantity: {item.quantity}</span>
+                                                        <div className="flex items-center border border-neutral-200 bg-white">
+                                                            <button 
+                                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                                className="p-2 hover:bg-neutral-50 transition-colors"
+                                                                disabled={item.quantity <= 1}
+                                                            >
+                                                                <Minus className="w-3 h-3" />
+                                                            </button>
+                                                            <span className="w-8 text-center text-sm font-medium border-x border-neutral-100">{item.quantity}</span>
+                                                            <button 
+                                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                                className="p-2 hover:bg-neutral-50 transition-colors"
+                                                            >
+                                                                <Plus className="w-3 h-3" />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div className="text-lg font-bold text-neutral-900">
