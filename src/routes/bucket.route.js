@@ -1,5 +1,5 @@
 import express from "express";
-import { addToBucket, getBucket, deleteBucketItem } from "../controllers/bucket.controllers.js";
+import { addToBucket, getBucket, deleteBucketItem, updateBucketItemQuantity, clearBucket } from "../controllers/bucket.controllers.js";
 
 const bucketRoutes = express.Router();
 
@@ -11,5 +11,11 @@ bucketRoutes.get("/:userId", getBucket);
 
 //  Route delete bucket item
 bucketRoutes.delete("/:id", deleteBucketItem);
+
+// Route untuk update quantity item di keranjang
+bucketRoutes.put("/:id", updateBucketItemQuantity);
+
+// Route untuk mengosongkan keranjang
+bucketRoutes.delete("/clear/:userId", clearBucket);
 
 export default bucketRoutes;

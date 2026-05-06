@@ -95,3 +95,39 @@ export const createTransaction = async (req, res) => {
         });
     }
 }
+
+export const getOrdersByUser = async (req, res) => {
+    try {
+        const { email } = req.params;
+
+        const orders = await Order.findAll({
+            where: { customerEmail: email },
+            include: [
+                {
+                    model: OrderItem,
+                    as: 'items',
+                    include: [
+                        {
+                            model: Product,
+                            as: 'product'
+                        }
+                    ]
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Berhasil mendapatkan riwayat pesanan",
+            data: orders
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Gagal mendapatkan riwayat pesanan",
+            error: error.message
+        });
+    }
+};

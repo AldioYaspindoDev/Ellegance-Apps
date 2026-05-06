@@ -126,3 +126,73 @@ export const deleteBucketItem = async(req, res) => {
         });
     }
 }
+
+export const updateBucketItemQuantity = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { quantity } = req.body;
+
+        const item = await BucketItems.findByPk(id);
+
+        if (!item) {
+            return res.status(404).json({
+                success: false,
+                message: "Item tidak ditemukan"
+            });
+        }
+
+        item.quantity = parseInt(quantity);
+        await item.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Quantity berhasil diupdate",
+            data: item
+        });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({
+            success: false,
+            message: "Gagal update quantity",
+            error: error.message
+        });
+    }
+};
+
+export const clearBucket = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const bucket = await Bucket.findOne({
+            where: { userId, status: 'active' }
+        });
+
+        if (!bucket) {
+            return res.status(404).json({
+                success: false,
+                message: "Keranjang aktif tidak ditemukan"
+            });
+        }
+
+        // Hapus semua item di bucket tersebut
+        await BucketItems.destroy({
+            where: { BucketId: bucket.id }
+        });
+
+        // Opsi tambahan: Update status bucket menjadi 'completed' jika ingin menyimpan history
+        // bucket.status = 'completed';
+        // await bucket.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Keranjang berhasil dikosongkan"
+        });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({
+            success: false,
+            message: "Gagal mengosongkan keranjang",
+            error: error.message
+        });
+    }
+};
