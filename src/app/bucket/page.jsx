@@ -9,14 +9,81 @@ import { Trash2, ShoppingBag, ArrowRight, Check } from "lucide-react";
 import { useState } from "react";
 
 export default function BucketPage() {
-    const { bucketItems, loading, removeFromBucket } = useBucket();
+    const { bucketItems, loading, removeFromBucket, user } = useBucket();
     const [showToast, setShowToast] = useState(false);
     const [toastMsg, setToastMsg] = useState("");
+    const [isCheckingOut, setIsCheckingOut] = useState(false);
 
     // Hitung total harga
     const totalPrice = bucketItems.reduce((acc, item) => {
         return acc + (item.product?.price * item.quantity);
     }, 0);
+
+    // Fungsi Checkout
+    const handleCheckout = async () => {
+        if (!user) {
+            alert("Please login to checkout");
+            return;
+        }
+
+        if (bucketItems.length === 0) {
+            alert("Your bucket is empty");
+            return;
+        }
+
+        setIsCheckingOut(true);
+
+        try {
+            const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+            const response = await fetch("http://localhost:5000/order", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    orderId: orderId,
+                    email: user.email,
+                    username: user.username,
+                    item_details: bucketItems.map(item => ({
+                        id: item.productId,
+                        quantity: item.quantity
+                    }))
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.token) {
+                // Trigger Midtrans Snap
+                window.snap.pay(data.token, {
+                    onSuccess: function(result) {
+                        console.log('success', result);
+                        alert("Payment Success!");
+                        // Clear cart or redirect
+                        window.location.href = "/";
+                    },
+                    onPending: function(result) {
+                        console.log('pending', result);
+                        alert("Waiting for your payment!");
+                    },
+                    onError: function(result) {
+                        console.log('error', result);
+                        alert("Payment failed!");
+                    },
+                    onClose: function() {
+                        console.log('customer closed the popup without finishing the payment');
+                    }
+                });
+            } else {
+                alert(data.message || "Failed to create transaction");
+            }
+        } catch (error) {
+            console.error("Checkout error:", error);
+            alert("Something went wrong during checkout");
+        } finally {
+            setIsCheckingOut(false);
+        }
+    };
 
     // Fungsi Delete Item (Dibuat langsung di sini sesuai permintaan)
     const handleDeleteItem = async (itemId) => {
@@ -145,9 +212,19 @@ export default function BucketPage() {
                                             <span>Rp {totalPrice.toLocaleString()}</span>
                                         </div>
                                     </div>
-                                    <button className="w-full py-5 bg-neutral-900 text-white text-sm font-bold tracking-widest hover:bg-neutral-800 transition-all flex items-center justify-center gap-3 group">
-                                        CHECKOUT NOW
-                                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                    <button 
+                                        onClick={handleCheckout}
+                                        disabled={isCheckingOut}
+                                        className="w-full py-5 bg-neutral-900 text-white text-sm font-bold tracking-widest hover:bg-neutral-800 transition-all flex items-center justify-center gap-3 group disabled:bg-neutral-400 disabled:cursor-not-allowed"
+                                    >
+                                        {isCheckingOut ? (
+                                            <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                                        ) : (
+                                            <>
+                                                CHECKOUT NOW
+                                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                            </>
+                                        )}
                                     </button>
                                     <p className="text-center text-xs text-neutral-400 mt-6 tracking-wide">
                                         Shipping & taxes calculated at checkout
