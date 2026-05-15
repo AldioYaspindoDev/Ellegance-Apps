@@ -4,10 +4,10 @@ import { motion } from "framer-motion";
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex flex-col items-start justify-center pt-24 overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-start justify-end pt-24 pb-24 overflow-hidden">
       <motion.div 
-        initial={{ opacity: 0.8, scale: 1.1 }}
-        animate={{ opacity: 0.4, scale: 1 }}
+        initial={{ opacity: 0.9, scale: 1.1 }}
+        animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.5 }}
         className="absolute inset-0 z-0"
       >
@@ -53,7 +53,7 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="flex flex-wrap gap-6"
           >
-            <button className="btn-primary mt-20 flex items-center gap-4 group">
+            <button className="btn-primary flex items-center gap-4 group">
               Explore Collection
               <motion.span
                 animate={{ x: [0, 5, 0] }}

@@ -6,6 +6,7 @@ import useBucket from "../context/bucketContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Package, Calendar, CreditCard, ChevronRight, ShoppingBag, CheckCircle2, Clock, XCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import NavbarProfile from "../components/navbarProfile/navbarProfile";
 
 export default function ProfilePage() {
     const { user, loading: userLoading } = useBucket();
@@ -93,37 +94,7 @@ export default function ProfilePage() {
                 <div className="section-container">
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
                         
-                        {/* Sidebar / User Info */}
-                        <motion.div 
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="lg:col-span-1"
-                        >
-                            <div className="bg-neutral-50 p-8 sticky top-32 border border-neutral-100">
-                                <div className="flex flex-col items-center text-center mb-8">
-                                    <div className="w-24 h-24 bg-neutral-900 rounded-full flex items-center justify-center mb-4 shadow-xl">
-                                        <span className="text-3xl font-light text-white uppercase">{user.username?.charAt(0)}</span>
-                                    </div>
-                                    <h2 className="text-xl font-bold text-neutral-900 uppercase tracking-tight mb-1">{user.username}</h2>
-                                    <p className="text-sm text-neutral-500 lowercase">{user.email}</p>
-                                    <div className="mt-4 px-3 py-1 bg-neutral-200 text-[10px] font-bold tracking-[0.2em] text-neutral-600 uppercase rounded-full">
-                                        {user.role}
-                                    </div>
-                                </div>
-                                
-                                <div className="space-y-1">
-                                    <button className="w-full flex items-center gap-3 px-4 py-3 bg-white text-neutral-900 text-xs font-bold tracking-widest border border-neutral-900 transition-all">
-                                        <Package className="w-4 h-4" />
-                                        MY ORDERS
-                                    </button>
-                                    <button className="w-full flex items-center gap-3 px-4 py-3 text-neutral-400 text-xs font-bold tracking-widest hover:text-neutral-900 transition-all">
-                                        <User className="w-4 h-4" />
-                                        ACCOUNT SETTINGS
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
-
+                      <NavbarProfile />
                         {/* Main Content / Orders */}
                         <motion.div 
                             initial={{ opacity: 0, y: 20 }}
