@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { User, Package } from 'lucide-react';
 import Link from 'next/link';
 import useBucket from '../../context/bucketContext';
+import { getUserOrders } from '@/services/orderService';
 
 export default function NavbarProfile() {
     const { user, loading: userLoading } = useBucket();
@@ -17,8 +18,7 @@ export default function NavbarProfile() {
             if (!user?.email) return;
 
             try {
-                const response = await fetch(`http://localhost:5000/order/user/${user.email}`);
-                const data = await response.json();
+                const data = await getUserOrders(user.email);
                 if (data.success) {
                     setOrders(data.data);
                 }
@@ -28,6 +28,8 @@ export default function NavbarProfile() {
                 setLoading(false);
             }
         };
+
+        
 
         if (user) {
             fetchOrders();
@@ -46,8 +48,16 @@ export default function NavbarProfile() {
             >
                 <div className="bg-neutral-50 p-8 sticky top-32 border border-neutral-100">
                     <div className="flex flex-col items-center text-center mb-8">
-                        <div className="w-24 h-24 bg-neutral-900 rounded-full flex items-center justify-center mb-4 shadow-xl">
-                            <span className="text-3xl font-light text-white uppercase">{user?.username?.charAt(0)}</span>
+                        <div className="w-24 h-24 bg-neutral-900 rounded-full overflow-hidden flex items-center justify-center mb-4 shadow-xl">
+                            {user?.image ? (
+                                <img 
+                                    src={`http://localhost:5000/${user.image}`} 
+                                    alt={user?.username} 
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <span className="text-3xl font-light text-white uppercase">{user?.username?.charAt(0)}</span>
+                            )}
                         </div>
                         <h2 className="text-xl font-bold text-neutral-900 uppercase tracking-tight mb-1">{user?.username}</h2>
                         <p className="text-sm text-neutral-500 lowercase">{user?.email}</p>

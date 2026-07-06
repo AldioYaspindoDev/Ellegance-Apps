@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getMe } from "@/services/userService";
+import { getBucket, addToBucketApi, removeFromBucketApi, updateQuantityApi, clearBucketApi } from "@/services/bucketService";
 
 const BucketContext = createContext();
 
@@ -21,12 +23,7 @@ export function BucketProvider({ children }) {
         }
 
         try {
-            const res = await fetch("http://localhost:5000/user/me", {
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-            const data = await res.json();
+            const data = await getMe();
             if (data.success) {
                 setUser(data.data);
                 await fetchBucket(data.data.id);
@@ -39,6 +36,7 @@ export function BucketProvider({ children }) {
             }
         } catch (error) {
             console.error("Error fetching user:", error);
+            localStorage.removeItem("token");
             setUser(null);
             return null;
         }
@@ -47,8 +45,7 @@ export function BucketProvider({ children }) {
     const fetchBucket = async (userId) => {
         if (!userId) return;
         try {
-            const res = await fetch(`http://localhost:5000/bucket/${userId}`);
-            const data = await res.json();
+            const data = await getBucket(userId);
             if (data.success && data.data) {
                 setBucketItems(data.data.items || []);
             }
@@ -66,17 +63,7 @@ export function BucketProvider({ children }) {
 
 
         try {
-            const res = await fetch("http://localhost:5000/bucket/add", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    userId: user.id, // Gunakan ID asli dari user
-                    productId, 
-                    selectedSize, 
-                    quantity 
-                })
-            });
-            const data = await res.json();
+            const data = await addToBucketApi(user.id, productId, selectedSize, quantity);
             if (data.success) {
                 await fetchBucket(user.id); // Refresh data
                 return { success: true, message: data.message };
@@ -108,10 +95,7 @@ export function BucketProvider({ children }) {
 
     const removeFromBucket = async (itemId) => {
         try {
-            const res = await fetch(`http://localhost:5000/bucket/${itemId}`, {
-                method: "DELETE"
-            });
-            const data = await res.json();
+            const data = await removeFromBucketApi(itemId);
             if (data.success) {
                 if (user) await fetchBucket(user.id);
                 return { success: true, message: data.message };
@@ -126,12 +110,7 @@ export function BucketProvider({ children }) {
         if (quantity < 1) return { success: false, message: "Quantity minimal 1" };
         
         try {
-            const res = await fetch(`http://localhost:5000/bucket/${itemId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ quantity })
-            });
-            const data = await res.json();
+            const data = await updateQuantityApi(itemId, quantity);
             if (data.success) {
                 if (user) await fetchBucket(user.id);
                 return { success: true, message: data.message };
@@ -145,10 +124,7 @@ export function BucketProvider({ children }) {
     const clearUserBucket = async () => {
         if (!user) return;
         try {
-            const res = await fetch(`http://localhost:5000/bucket/clear/${user.id}`, {
-                method: "DELETE"
-            });
-            const data = await res.json();
+            const data = await clearBucketApi(user.id);
             if (data.success) {
                 setBucketItems([]);
                 return { success: true };

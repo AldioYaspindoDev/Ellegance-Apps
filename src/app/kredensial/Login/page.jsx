@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, Mail, Lock, Loader2 } from "lucide-react";
 import useBucket from "../../context/bucketContext";
+import { loginUser } from "@/services/userService";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -17,20 +18,9 @@ export default function Login() {
         e.preventDefault();
         setLoading(true);
         try {
-            const response = await fetch("http://localhost:5000/user/login", {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password,
-                }),
-            });
+            const data = await loginUser(email, password);
 
-            const data = await response.json();
-            
-            if(!response.ok) throw new Error(data.message);
+            if (!data.success) throw new Error(data.message);
 
             // Simpan token ke localStorage untuk profesionalisme
             if (data.token) {
@@ -42,8 +32,8 @@ export default function Login() {
             router.push("/")
 
         } catch (error) {
-            console.error(error.message);
-            alert(error.message || "Login failed. Please check your credentials.");
+            console.error(error.message || error);
+            alert(error.response?.data?.message || error.message || "Login failed. Please check your credentials.");
         } finally {
             setLoading(false);
         }
