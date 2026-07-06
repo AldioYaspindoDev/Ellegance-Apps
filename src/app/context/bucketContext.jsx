@@ -29,6 +29,7 @@ export function BucketProvider({ children }) {
             const data = await res.json();
             if (data.success) {
                 setUser(data.data);
+                await fetchBucket(data.data.id);
                 return data.data;
             } else {
                 // Jika token tidak valid, hapus dari storage
@@ -169,7 +170,8 @@ export function BucketProvider({ children }) {
             updateQuantity,
             clearUserBucket,
             logout,
-            loading 
+            loading,
+            fetchUser
         }}>
 
             {children}

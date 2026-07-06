@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex flex-col items-start justify-end pt-24 pb-24 overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-start justify-end pt-40 pb-24 overflow-hidden">
       <motion.div 
         initial={{ opacity: 0.9, scale: 1.1 }}
         animate={{ opacity: 1, scale: 1 }}

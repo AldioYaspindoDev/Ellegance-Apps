@@ -4,13 +4,14 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, Mail, Lock, Loader2 } from "lucide-react";
-import Navbar from "../../components/navbar";
+import useBucket from "../../context/bucketContext";
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const { fetchUser } = useBucket();
 
     const HandleLogin = async (e) => {
         e.preventDefault();
@@ -34,6 +35,7 @@ export default function Login() {
             // Simpan token ke localStorage untuk profesionalisme
             if (data.token) {
                 localStorage.setItem("token", data.token);
+                await fetchUser();
             }
 
             alert("Selamat anda Berhasil Login");

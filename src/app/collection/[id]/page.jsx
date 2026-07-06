@@ -110,12 +110,6 @@ export default function DetailCollection() {
         window.snap.pay(data.token, {
           onSuccess: async function(result) {
             console.log('success', result);
-            // Kita tidak menghapus produk dari database lagi, 
-            // tapi kita kosongkan bucket jika user menginginkannya.
-            // Namun untuk Direct Checkout, biasanya bucket tidak ikut terhapus
-            // kecuali barang yang dibeli ada di bucket.
-            // Untuk memastikan bucket bersih setelah checkout (sesuai komplain user), 
-            // kita panggil clearUserBucket.
             await clearUserBucket();
             
             alert("Payment Success! Your order is being processed.");
